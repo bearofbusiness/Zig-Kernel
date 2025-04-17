@@ -66,9 +66,10 @@ fn kmain() callconv(.C) void {
     while (true) {
         const raw = console.getCharRaw();
         if (raw != old_char) {
-            _ = console.setPosition(0, 2);
+            //_ = console.setPosition(0, 2);
             //console.printf("{}: ", .{@as(console.Key, @enumFromInt(raw))});
-            console.printf("{x}                                ", .{raw});
+            console.printf("{x}", .{raw});
+            console.newLine();
             old_char = raw;
         }
     }
