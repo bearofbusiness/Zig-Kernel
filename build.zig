@@ -40,8 +40,16 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-
     kernel.addObject(ps2_io_obj);
+
+    const time_obj = b.addObject(.{
+        .name = "hw_time",
+        .root_source_file = b.path("src/hw/hw_time.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    kernel.addObject(time_obj);
 
     kernel.setLinkerScript(b.path("src/kernel/linker.ld"));
     b.installArtifact(kernel);
