@@ -57,6 +57,8 @@ export fn _start() callconv(.Naked) noreturn {
     );
 }
 
+extern fn rdtsc() u64;
+
 fn kmain() callconv(.C) void {
     console.initialize();
     console.puts("Hello Zig Kernel!");
@@ -77,6 +79,11 @@ fn kmain() callconv(.C) void {
             console.printf("{}", .{raw.key});
             console.newLine();
             old_char = raw.last_key;
+
+            if (raw.key == .ADown) {
+                console.printf("{}", .{rdtsc() / 60 / 60 / 24 / 365});
+                console.newLine();
+            }
 
             if (raw.key == .EscUp) {
                 console.clear();
