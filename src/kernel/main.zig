@@ -65,31 +65,38 @@ fn kmain() callconv(.C) void {
     console.newLine();
     console.puts("Hello Zig Kernel!");
     console.newLine();
-    var old_char: keyboard.Key = .Unknown;
+    // var old_char: keyboard.Key = .Unknown;
+    var old: u8 = 0;
     while (true) {
-        const raw_n = keyboard.getKeyUsingState();
-        const raw = if (raw_n) |ra| ra else continue;
-        if (raw.key != old_char) {
-            //_ = console.setPosition(0, 2);
-
-            if (console.getPosition().y > 15) {
-                console.clear();
-                _ = console.setPosition(0, 0);
-            }
-            console.printf("{}", .{raw.key});
+        const val = keyboard.getCharRaw();
+        if (val != old) {
+            console.printf("{x}", .{val});
             console.newLine();
-            old_char = raw.last_key;
-
-            if (raw.key == .ADown) {
-                console.printf("{}", .{rdtsc() / 60 / 60 / 24 / 365});
-                console.newLine();
-            }
-
-            if (raw.key == .EscUp) {
-                console.clear();
-                _ = console.setPosition(0, 0);
-            }
+            old = val;
         }
+        // const raw_n = keyboard.getKeyUsingState();
+        // const raw = if (raw_n) |ra| ra else continue;
+        // if (raw.key != old_char) {
+        //     //_ = console.setPosition(0, 2);
+
+        //     if (console.getPosition().y > 15) {
+        //         console.clear();
+        //         _ = console.setPosition(0, 0);
+        //     }
+        //     console.printf("{}", .{raw.key});
+        //     console.newLine();
+        //     old_char = raw.last_key;
+
+        //     if (raw.key == .ADown) {
+        //         console.printf("{}", .{rdtsc() / 60 / 60 / 24 / 365});
+        //         console.newLine();
+        //     }
+
+        //     if (raw.key == .EscUp) {
+        //         console.clear();
+        //         _ = console.setPosition(0, 0);
+        //     }
+        // }
     }
 
     //no return
