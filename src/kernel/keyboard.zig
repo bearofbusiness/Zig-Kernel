@@ -1,6 +1,6 @@
 const fields = @import("std").meta.fields;
 
-extern fn getCharRaw() u8;
+pub extern fn getCharRaw() u8;
 
 pub fn getAsciiChar() ?u8 {
     return getAsciiCharFromCode(getCharRaw());
@@ -147,6 +147,8 @@ pub fn getKey() KeyLastKey {
         .BacktickUp => .{ .key = .BacktickUp, .last_key = .BacktickUp },
         .LeftShiftDown => .{ .key = .LeftShiftDown, .last_key = .LeftShiftDown },
         .LeftShiftUp => .{ .key = .LeftShiftUp, .last_key = .LeftShiftUp },
+        .BackslashDown => .{ .key = .BackslashDown, .last_key = .BackslashDown },
+        .BackslashUp => .{ .key = .BackslashUp, .last_key = .BackslashUp },
         .ZDown => .{ .key = .ZDown, .last_key = .ZDown },
         .ZUp => .{ .key = .ZUp, .last_key = .ZUp },
         .XDown => .{ .key = .XDown, .last_key = .XDown },
@@ -454,6 +456,8 @@ pub const KeyCodeRaw = enum(u8) {
     BacktickUp = 0xA9,
     LeftShiftDown = 0x2A,
     LeftShiftUp = 0xAA,
+    BackslashDown = 0x2B,
+    BackslashUp = 0xAB,
     ZDown = 0x2C,
     ZUp = 0xAC,
     XDown = 0x2D,
