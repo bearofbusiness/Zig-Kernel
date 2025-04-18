@@ -65,7 +65,8 @@ fn kmain() callconv(.C) void {
     console.newLine();
     var old_char: keyboard.Key = .Unknown;
     while (true) {
-        const raw = keyboard.getKey();
+        const raw_n = keyboard.getKeyUsingState();
+        const raw = if (raw_n) |ra| ra else continue;
         if (raw.key != old_char) {
             //_ = console.setPosition(0, 2);
 

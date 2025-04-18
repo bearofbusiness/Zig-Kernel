@@ -1,3 +1,5 @@
+const fields = @import("std").meta.fields;
+
 extern fn getCharRaw() u8;
 
 pub fn getAsciiChar() ?u8 {
@@ -56,7 +58,9 @@ fn getAsciiCharFromCode(key_code: u8) ?u8 {
     };
 }
 
-pub fn getKey() struct { key: Key, last_key: Key } {
+const KeyLastKey = struct { key: Key, last_key: Key };
+
+pub fn getKey() KeyLastKey {
     return switch (@as(KeyCodeRaw, @enumFromInt(getCharRaw()))) {
         // ----- Base set -----
         .EscDown => .{ .key = .EscDown, .last_key = .EscDown },
@@ -292,7 +296,7 @@ pub fn getKey() struct { key: Key, last_key: Key } {
             return .{ .key = .Unknown, .last_key = .Unknown };
         },
         //else => .{ .key = .Unknown, .last_key = .Unknown },
-        //these are there but should never be used by them selfs but are needed for not allowing duplication
+        //these are there but should never be used by them self but are needed for not allowing duplication
         .LeftGuiDown => .{ .key = .LeftGuiDown, .last_key = .LeftGuiDown },
         .LeftGuiUp => .{ .key = .LeftGuiUp, .last_key = .LeftGuiUp },
         .RightGuiDown => .{ .key = .RightGuiDown, .last_key = .RightGuiDown },
@@ -300,6 +304,69 @@ pub fn getKey() struct { key: Key, last_key: Key } {
         .ApplicationsDown => .{ .key = .ApplicationsDown, .last_key = .ApplicationsDown },
         .ApplicationsUp => .{ .key = .ApplicationsUp, .last_key = .ApplicationsUp },
     };
+}
+const KeyState = struct {
+    down: Key,
+    up: Key,
+    state: bool = false,
+};
+var states = initState();
+
+inline fn initState() [fields(Key).len / 2 - 1]KeyState {
+    comptime {
+        const k_v_p = fields(Key);
+        var ret: [k_v_p.len / 2 - 1]KeyState = undefined;
+        for (k_v_p[0 .. k_v_p.len - 2], 0..) |key, i| {
+            if (key.value % 2 == 0) {
+                ret[i / 2] = KeyState{ .down = @enumFromInt(key.value), .up = undefined };
+            } else {
+                ret[i / 2].up = @enumFromInt(key.value);
+            }
+        }
+        return ret;
+    }
+}
+
+pub fn getKeyUsingState() ?KeyLastKey {
+    const key = getKey();
+
+    const key_int = @intFromEnum(key.key);
+
+    if (key_int > 103 * 2) return key;
+
+    if (key_int % 2 == 0) {
+        if (states[key_int / 2].state) return null;
+        states[key_int / 2].state = true;
+    } else {
+        if (!states[key_int / 2].state) return null;
+        states[key_int / 2].state = false;
+    }
+
+    return key;
+}
+
+test "test test" {
+    const std = @import("std");
+
+    // const val = struct {
+    //     key: [:0]const u8,
+    //     i: usize,
+    // };
+
+    // const value = comptime brk: {
+    //     const k_v_p = std.meta.fields(Key);
+    //     var ret: [k_v_p.len]val = undefined;
+    //     for (k_v_p, 0..) |key, i| {
+    //         ret[i] = val{ .key = key.name, .i = key.value };
+    //     }
+    //     break :brk ret;
+    // };
+    // for (0..208) |i| {
+    //     std.log.warn("{d}: {s}\n", .{ value[i].i, value[i].key }); // [value[i].key.len - 4 ..]
+    // }
+    for (states) |state| {
+        std.log.warn("{} - {}: {}\n", .{ state.down, state.up, state.state });
+    }
 }
 
 pub const KeyCodeRaw = enum(u8) {
