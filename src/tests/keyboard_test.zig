@@ -14,7 +14,7 @@ export fn getCharRaw() u8 {
     return b;
 }
 
-// for reseting the global byte stream before each test
+// for resetting the global byte stream before each test
 fn setFeed(bytes: []const u8) void {
     feed = bytes;
     pos = 0;
