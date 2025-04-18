@@ -18,18 +18,47 @@ pub fn build(b: *std.Build) void {
         .cpu_features_sub = disabled_features,
         .cpu_features_add = enabled_features,
     };
+
     const optimize = b.standardOptimizeOption(.{});
+    const target = b.resolveTargetQuery(target_query);
 
     const kernel = b.addExecutable(.{
         .name = "kernel.elf",
         .root_source_file = b.path("src/main.zig"),
-        .target = b.resolveTargetQuery(target_query),
+        .target = target,
         .optimize = optimize,
         .code_model = .kernel,
     });
 
+    kernel.addIncludePath(b.path("src"));
+
+    // compile & link the hardware layer
+
+    const ps2_io_obj = b.addObject(.{
+        .name = "ps2_io",
+        .root_source_file = b.path("hw/ps2_io.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    kernel.addObject(ps2_io_obj);
+
     kernel.setLinkerScript(b.path("src/linker.ld"));
     b.installArtifact(kernel);
+
+    //----------UNIT TESTS-----------//
+    const test_step = b.step("test", "Run all tests");
+
+    const keyboard_test = b.addTest(.{
+        .root_source_file = b.path("tests/keyboard_test.zig"),
+        .optimize = optimize,
+    });
+
+    const keyboard_mod = b.createModule(.{ .root_source_file = b.path("src/keyboard.zig") });
+
+    keyboard_test.root_module.addImport("keyboard", keyboard_mod);
+
+    test_step.dependOn(&keyboard_test.step);
 
     const kernel_step = b.step("kernel", "Build the kernel");
     kernel_step.dependOn(&kernel.step);
