@@ -62,15 +62,24 @@ fn kmain() callconv(.C) void {
     console.newLine();
     console.puts("Hello Zig Kernel!");
     console.newLine();
-    var old_char: u8 = 0;
+    var old_char: console.Key = .Unknown;
     while (true) {
-        const raw = console.getCharRaw();
-        if (raw != old_char) {
+        const raw = console.getKey();
+        if (raw.key != old_char) {
             //_ = console.setPosition(0, 2);
-            //console.printf("{}: ", .{@as(console.Key, @enumFromInt(raw))});
-            console.printf("{x}", .{raw});
+
+            if (console.getPosition().y > 15) {
+                console.clear();
+                _ = console.setPosition(0, 0);
+            }
+            console.printf("{}", .{raw.key});
             console.newLine();
-            old_char = raw;
+            old_char = raw.last_key;
+
+            if (raw.key == .EscUp) {
+                console.clear();
+                _ = console.setPosition(0, 0);
+            }
         }
     }
 
