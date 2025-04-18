@@ -1,4 +1,5 @@
 const console = @import("./console.zig");
+const keyboard = @import("./keyboard.zig");
 
 const ALIGN = 1 << 0;
 const MEMINFO = 1 << 1;
@@ -62,9 +63,9 @@ fn kmain() callconv(.C) void {
     console.newLine();
     console.puts("Hello Zig Kernel!");
     console.newLine();
-    var old_char: console.Key = .Unknown;
+    var old_char: keyboard.Key = .Unknown;
     while (true) {
-        const raw = console.getKey();
+        const raw = keyboard.getKey();
         if (raw.key != old_char) {
             //_ = console.setPosition(0, 2);
 
